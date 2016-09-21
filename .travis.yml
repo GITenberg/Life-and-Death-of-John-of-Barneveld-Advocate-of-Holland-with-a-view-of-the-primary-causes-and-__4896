@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: OkULuXgVorhhsjf78wf4eN5D2vSr5icKJXwWCPg42SdeauuI8DfjGKrRJ32kbDdiJMlOTe14qxZtYseSmg5RkRf+0VZutJLj2YdofcWjdZ3UoEw7efb7XBS19WBBhoPX4blIHrMEXSKxEaXOdI1ZfRBzTe+JXnAxy1nQMvjHxo8rLqkz6KGJG3if4NSlk/PpqKpfsSNd64IhIc2bkUmt+w7E391p6Yj9bvrxP+n4mJYFKtwEnTCtqGBE4Z4ZBl2v+I4oQf60GndweunX9BkDbZy9qXHoY42JkHEZI9yzkt96yFbUTbeFAFKNAp6NiUjBeQn9H3JQanC2SKKaXtbjNOW3ncrq75XoZsPKb0WeGUTu0aB/k3zi3mOIrT8RSjshT2mkjX8TECxcZQj8HIIu6xUuZ3dLHhUE85GMOEZe/mhMprxf2jMX8jzWsrshpJOytwt4ckXeZtZJ7OIsrFjgCrPlqC3jHt3di4gqrLSEBJ6VlRe7z8Zx7g9BopcsvYHxFNgNp5349tXJPwgBeZcAvjoqoDHxSO9LE2zPKJOWl9aB3aJwtAUk+ejABPzNjxHzKFSqh9CvFUFVt61Lq49nTlCnKptyc8eUDDU3pNuXqdJksJdRkw9BEc/TFNEgAbvp0R6D3BFozlVDKU9Lm1Jkg/MfziI1j8cFG55KEcLsjpU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Life-and-Death-of-John-of-Barneveld-Advocate-of-Holland-with-a-view-of-the-primary-causes-and-__4896
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
